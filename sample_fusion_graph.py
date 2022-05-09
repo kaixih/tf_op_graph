@@ -26,8 +26,10 @@ def matmul_bias_gelu_model(x):
   out = tf.nn.gelu(z, approximate=True)
   return out
 
-print_op_graph(matmul_bias_gelu_model, (m, k), True, "gelu_fused.png")
-print_op_graph(matmul_bias_gelu_model, (m, k), False, "gelu_unfused.png")
+print_op_graph(matmul_bias_gelu_model, (m, k), "gelu_fused.png",
+               remapping_on=True)
+print_op_graph(matmul_bias_gelu_model, (m, k), "gelu_unfused.png",
+               remapping_on=False)
 
 n, h, w, c = (5, 3, 3, 4)
 precision = tf.float32
@@ -44,6 +46,8 @@ def conv_bias_relu_model(x):
   out = tf.nn.relu(z)
   return out
 
-print_op_graph(conv_bias_relu_model, (n, c, h, w), True, "conv_fused.png")
-print_op_graph(conv_bias_relu_model, (n, c, h, w), False, "conv_unfused.png")
+print_op_graph(conv_bias_relu_model, (n, c, h, w), "conv_fused.png",
+               remapping_on=True)
+print_op_graph(conv_bias_relu_model, (n, c, h, w), "conv_unfused.png",
+               remapping_on=False)
 

@@ -81,17 +81,21 @@ def plot_ops_graph(graph, to_file):
   dot.write(file_name + '.' + extension, format=extension)
   print("[TF-OP-GRAPH] The op graph is plotted to %s." % to_file)
 
-def _get_config(remapping_on=False):
+def _get_config(remapping_on=False, layout_on=False):
   """Returns a CongfigProto with remapper optimizer on/off."""
   rewrite_config = rewriter_config_pb2.RewriterConfig(
       remapping=rewriter_config_pb2.RewriterConfig
-      .ON if remapping_on else rewriter_config_pb2.RewriterConfig.OFF)
+      .ON if remapping_on else rewriter_config_pb2.RewriterConfig.OFF,
+      layout_optimizer=rewriter_config_pb2.RewriterConfig
+      .ON if layout_on else rewriter_config_pb2.RewriterConfig.OFF,
+      )
   rewrite_config.min_graph_nodes = -1
   graph_options = config_pb2.GraphOptions(rewrite_options=rewrite_config)
   config = config_pb2.ConfigProto(graph_options=graph_options)
   return config
 
-def print_op_graph(model_fn, input_shape, remapping_on, plot_file):
+def print_op_graph(model_fn, input_shape, plot_file, remapping_on=True,
+                   layout_on=True):
   with context.graph_mode():
     run_options = config_pb2.RunOptions(output_partition_graphs=True)
     metadata = config_pb2.RunMetadata()
@@ -101,7 +105,7 @@ def print_op_graph(model_fn, input_shape, remapping_on, plot_file):
     out = model_fn(x)
 
     # Compute reference value.
-    config = _get_config(remapping_on=remapping_on)
+    config = _get_config(remapping_on=remapping_on, layout_on=layout_on)
     with session.Session(config=config) as sess:
       sess.run(variables.global_variables_initializer())
       output_val_ref = sess.run(
