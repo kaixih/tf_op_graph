@@ -39,7 +39,7 @@ def add_edge(dot, src, dst):
   if not dot.get_edge(src, dst):
     dot.add_edge(pydot.Edge(src, dst))
 
-def plot_ops_graph(graph, to_file):
+def plot_ops_graph(graph, to_file, highlight_patterns):
   """Converts ops to dot format and save to a file. """
   if not check_pydot():
     message = (
@@ -57,12 +57,16 @@ def plot_ops_graph(graph, to_file):
 
   # Add all the nodes to the dot.
   for node in graph.node:
-    fillcolor = 'white'
-
     def format_shape(shape):
       return str(shape).replace(str(None), 'None')
 
     label = node.op
+
+    fillcolor = 'white'
+    for pattern in highlight_patterns:
+      if label.startswith(pattern):
+        fillcolor = 'red'
+
     node = pydot.Node(node.name, label=label, style='filled',
                       fillcolor=fillcolor)
     dot.add_node(node)
@@ -95,7 +99,7 @@ def _get_config(remapping_on=False, layout_on=False):
   return config
 
 def print_op_graph(model_fn, input_shape, plot_file, remapping_on=True,
-                   layout_on=True):
+                   layout_on=True, highlight_patterns=[]):
   with context.graph_mode():
     run_options = config_pb2.RunOptions(output_partition_graphs=True)
     metadata = config_pb2.RunMetadata()
@@ -112,4 +116,4 @@ def print_op_graph(model_fn, input_shape, plot_file, remapping_on=True,
           out, options=run_options, run_metadata=metadata)
       graph = metadata.partition_graphs[0]
 
-    plot_ops_graph(graph, plot_file)
+    plot_ops_graph(graph, plot_file, highlight_patterns)

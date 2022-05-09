@@ -27,7 +27,7 @@ def matmul_bias_gelu_model(x):
   return out
 
 print_op_graph(matmul_bias_gelu_model, (m, k), "gelu_fused.png",
-               remapping_on=True)
+               remapping_on=True, highlight_patterns=['_Fused'])
 print_op_graph(matmul_bias_gelu_model, (m, k), "gelu_unfused.png",
                remapping_on=False)
 
@@ -47,7 +47,7 @@ def conv_bias_relu_model(x):
   return out
 
 print_op_graph(conv_bias_relu_model, (n, c, h, w), "conv_fused.png",
-               remapping_on=True)
+               remapping_on=True, highlight_patterns=['_Fused'])
 print_op_graph(conv_bias_relu_model, (n, c, h, w), "conv_unfused.png",
                remapping_on=False)
 
