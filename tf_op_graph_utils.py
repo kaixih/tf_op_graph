@@ -67,6 +67,22 @@ def plot_ops_graph(graph, to_file, highlight_patterns):
       if label.startswith(pattern):
         fillcolor = 'red'
 
+    # Display the layout conversion direction.
+    if label == 'Transpose':
+      for input_name in node.input:
+        if 'nhwctonchw' in input_name.lower():
+          label += "\n(NHWC to NCHW)"
+        if 'nchwtonhwc' in input_name.lower():
+          label += "\n(NCHW to NHWC)"
+
+    # Display the fused ops.
+    if label == '_FusedMatMul':
+      fused_ops = node.attr['fused_ops'].list.s
+      label += "\n("
+      for op in fused_ops:
+        label += op.decode("utf-8") + ","
+      label += ")"
+
     node = pydot.Node(node.name, label=label, style='filled',
                       fillcolor=fillcolor)
     dot.add_node(node)
