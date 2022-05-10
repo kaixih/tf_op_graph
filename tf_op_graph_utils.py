@@ -1,3 +1,4 @@
+import enum
 import os
 
 try:
@@ -21,6 +22,10 @@ from tensorflow.python.framework import ops
 from tensorflow.python.ops import random_ops
 from tensorflow.python.ops import variables
 from tensorflow.python.eager import context
+
+class DtType(enum.Enum):
+  DT_FLOAT = 1
+  DT_HALF = 19
 
 def check_pydot():
   """Returns True if PyDot and Graphviz are available."""
@@ -63,9 +68,7 @@ def plot_ops_graph(graph, to_file, highlight_patterns):
     label = node.op
 
     fillcolor = 'white'
-    for pattern in highlight_patterns:
-      if label.startswith(pattern):
-        fillcolor = 'red'
+    style = 'filled'
 
     # Display the layout conversion direction.
     if label == 'Transpose':
@@ -83,7 +86,24 @@ def plot_ops_graph(graph, to_file, highlight_patterns):
         label += op.decode("utf-8") + ","
       label += ")"
 
-    node = pydot.Node(node.name, label=label, style='filled',
+    if 'T' in node.attr:
+      dt_type = node.attr['T'].type
+      if dt_type == DtType.DT_FLOAT.value:
+        label += '\ndtype=fp32'
+      if dt_type == DtType.DT_HALF.value:
+        label += '\ndtype=fp16'
+
+    if 'gpu' in node.device.lower():
+      label += '\ndevice=GPU'
+    else:
+      label += '\ndevice=CPU'
+
+    for pattern in highlight_patterns:
+      if label.startswith(pattern):
+        fillcolor = 'red'
+        style = '"dashed,filled"'
+
+    node = pydot.Node(node.name, label=label, style=style,
                       fillcolor=fillcolor)
     dot.add_node(node)
 
