@@ -2,8 +2,9 @@
 
 A visualization tool to display TF-Grappler optimized op graph. Grappler is the
 default graph optimization system in the TensorFlow runtime. Many different
-graph optimization passes will be applied before the execution, such as layout
-optimization, remapping optimizations, etc. (See
+graph optimization passes will be applied before the actual execution, such as
+layout optimization, remapping optimizations, etc. (For the full list of
+optimization passes, see
 [here](https://www.tensorflow.org/guide/graph_optimization)). The traditional
 way to display the op graph is via Tensorboard; however, Tensorboard only shows
 the op graph before the grappler passes. To better understand how the grappler
