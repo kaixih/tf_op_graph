@@ -26,9 +26,26 @@ def matmul_bias_gelu_model(x):
   out = tf.nn.gelu(z, approximate=True)
   return out
 
-print_op_graph(matmul_bias_gelu_model, (m, k), "gelu_fused.png",
+print_op_graph(matmul_bias_gelu_model, (m, k), "matmul_gelu_fused.png",
                remapping_on=True, highlight_patterns=['_Fused'])
-print_op_graph(matmul_bias_gelu_model, (m, k), "gelu_unfused.png",
+print_op_graph(matmul_bias_gelu_model, (m, k), "matmul_gelu_unfused.png",
+               remapping_on=False)
+
+def matmul_bias_relu_model(x):
+  w = _weight([k, n])
+  b = _weight([n])
+  x = tf.cast(x, precision)
+  w = tf.cast(w, precision)
+  b = tf.cast(b, precision)
+
+  y = tf.linalg.matmul(x, w)
+  z = tf.nn.bias_add(y, b)
+  out = tf.nn.relu(z)
+  return out
+
+print_op_graph(matmul_bias_relu_model, (m, k), "matmul_relu_fused.png",
+               remapping_on=True, highlight_patterns=['_Fused'])
+print_op_graph(matmul_bias_relu_model, (m, k), "matmul_relu_unfused.png",
                remapping_on=False)
 
 n, h, w, c = (5, 3, 3, 4)
