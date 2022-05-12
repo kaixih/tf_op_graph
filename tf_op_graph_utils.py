@@ -46,7 +46,7 @@ def add_edge(dot, src, dst, name_suffix):
   if not dot.get_edge(src_name, dst_name):
     dot.add_edge(pydot.Edge(src_name, dst_name))
 
-def add_node(dot, node, name_suffix, highlight_patterns):
+def add_node(dot, node, name_suffix, marked_node_names, highlight_patterns):
   """Adds node to dot. """
   label = node.op
 
@@ -81,13 +81,16 @@ def add_node(dot, node, name_suffix, highlight_patterns):
   else:
     label += '\ndevice=CPU'
 
+  graph_name = node.name + name_suffix
+  if graph_name in marked_node_names:
+    fillcolor = marked_node_names[graph_name]
+
   for pattern in highlight_patterns:
     if label.startswith(pattern):
-      fillcolor = 'red'
+      fillcolor = 'yellow'
       style = '"dashed,filled"'
 
-  pynode = pydot.Node(node.name + name_suffix, label=label, style=style,
-                      fillcolor=fillcolor)
+  pynode = pydot.Node(graph_name, label=label, style=style, fillcolor=fillcolor)
   dot.add_node(pynode)
 
 def plot_ops_graph(graph, graph_opt, to_file, highlight_patterns):
@@ -106,23 +109,46 @@ def plot_ops_graph(graph, graph_opt, to_file, highlight_patterns):
   dot.set('dpi', 96)
   dot.set_node_defaults(shape='record')
 
+  graph_suffix = '_orig'
+  graph_opt_suffix = '_opt'
+  # We mark the nodes that only appear in the original graph as "green" and the
+  # nodes that only in the optimized graph as "red".
+  marked_node_names = {}
+  for node in graph.node:
+    found = False
+    for node_opt in graph_opt.node:
+      if node.name == node_opt.name and node.op == node_opt.op:
+        found = True
+        break
+    if not found:
+      marked_node_names[node.name + graph_suffix] = 'green'
+
+  for node_opt in graph_opt.node:
+    found = False
+    for node in graph.node:
+      if node.name == node_opt.name and node.op == node_opt.op:
+        found = True
+        break
+    if not found:
+      marked_node_names[node_opt.name + graph_opt_suffix] = 'red'
+
   # Add all the nodes to the dot.
   for node in graph.node:
-    add_node(dot, node, '_orig', highlight_patterns)
+    add_node(dot, node, graph_suffix, marked_node_names, highlight_patterns)
 
   for node in graph_opt.node:
-    add_node(dot, node, '_opt', highlight_patterns)
+    add_node(dot, node, graph_opt_suffix, marked_node_names, highlight_patterns)
 
   # Create edges for these nodes.
   for dst_node in graph.node:
     dst_node_name = dst_node.name
     for src_node_name in dst_node.input:
-      add_edge(dot, src_node_name, dst_node_name, "_orig")
+      add_edge(dot, src_node_name, dst_node_name, graph_suffix)
 
   for dst_node in graph_opt.node:
     dst_node_name = dst_node.name
     for src_node_name in dst_node.input:
-      add_edge(dot, src_node_name, dst_node_name, "_opt")
+      add_edge(dot, src_node_name, dst_node_name, graph_opt_suffix)
 
   file_name, extension = os.path.splitext(to_file)
   if not extension:

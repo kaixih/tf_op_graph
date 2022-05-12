@@ -27,7 +27,7 @@ def matmul_bias_gelu_model(x):
   return out
 
 print_op_graph(matmul_bias_gelu_model, (m, k), "matmul_gelu_fusion_pass.png",
-               ['remapper'], highlight_patterns=['_Fused'])
+               ['remapper'])
 
 def matmul_bias_relu_model(x):
   w = _weight([k, n])
@@ -42,7 +42,7 @@ def matmul_bias_relu_model(x):
   return out
 
 print_op_graph(matmul_bias_relu_model, (m, k), "matmul_relu_fusion_pass.png",
-               ['remapper'], highlight_patterns=['_Fused'])
+               ['remapper'])
 
 n, h, w, c = (5, 3, 3, 4)
 precision = tf.float32
@@ -60,5 +60,5 @@ def conv_bias_relu_model(x):
   return out
 
 print_op_graph(conv_bias_relu_model, (n, c, h, w), "conv_fusion_pass.png",
-               ['remapper'], highlight_patterns=['_Fused'])
+               ['remapper'])
 
