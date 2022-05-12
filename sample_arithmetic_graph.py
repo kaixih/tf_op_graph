@@ -15,6 +15,6 @@ def pow_model(x):
   out = tf.math.pow(x, 3.0)
   return out
 
-print_op_graph(pow_model, (m, k), "gelu_arithmetic_pass.png",
+print_op_graph(pow_model, (m, k), "pow_arithmetic_pass.png",
                ['arithmetic'])
 
