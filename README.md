@@ -70,3 +70,16 @@ print_op_graph(conv_bias_relu_model, (n, h, w, c), "layout_pass.png",
                ['layout'], highlight_patterns=['Transpose'])
 ```
 ![Layout pass](pics/layout.png)
+
+### Arithmetic Opt OFF & ON
+```python
+def pow_model(x):
+  x = tf.cast(x, precision)
+
+  out = tf.math.pow(x, 3.0)
+  return out
+
+print_op_graph(pow_model, (m, k), "pow_arithmetic_pass.png",
+               ['arithmetic'])
+```
+![Arithmetic pass](pics/arithmetic_opt.png)
