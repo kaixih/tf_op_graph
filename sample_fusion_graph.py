@@ -26,10 +26,8 @@ def matmul_bias_gelu_model(x):
   out = tf.nn.gelu(z, approximate=True)
   return out
 
-print_op_graph(matmul_bias_gelu_model, (m, k), "matmul_gelu_fused.png",
-               remapping_on=True, highlight_patterns=['_Fused'])
-print_op_graph(matmul_bias_gelu_model, (m, k), "matmul_gelu_unfused.png",
-               remapping_on=False)
+print_op_graph(matmul_bias_gelu_model, (m, k), "matmul_gelu_fusion_pass.png",
+               ['remapper'], highlight_patterns=['_Fused'])
 
 def matmul_bias_relu_model(x):
   w = _weight([k, n])
@@ -43,10 +41,8 @@ def matmul_bias_relu_model(x):
   out = tf.nn.relu(z)
   return out
 
-print_op_graph(matmul_bias_relu_model, (m, k), "matmul_relu_fused.png",
-               remapping_on=True, highlight_patterns=['_Fused'])
-print_op_graph(matmul_bias_relu_model, (m, k), "matmul_relu_unfused.png",
-               remapping_on=False)
+print_op_graph(matmul_bias_relu_model, (m, k), "matmul_relu_fusion_pass.png",
+               ['remapper'], highlight_patterns=['_Fused'])
 
 n, h, w, c = (5, 3, 3, 4)
 precision = tf.float32
@@ -63,8 +59,6 @@ def conv_bias_relu_model(x):
   out = tf.nn.relu(z)
   return out
 
-print_op_graph(conv_bias_relu_model, (n, c, h, w), "conv_fused.png",
-               remapping_on=True, highlight_patterns=['_Fused'])
-print_op_graph(conv_bias_relu_model, (n, c, h, w), "conv_unfused.png",
-               remapping_on=False)
+print_op_graph(conv_bias_relu_model, (n, c, h, w), "conv_fusion_pass.png",
+               ['remapper'], highlight_patterns=['_Fused'])
 

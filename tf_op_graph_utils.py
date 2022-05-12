@@ -39,12 +39,58 @@ def check_pydot():
   except (OSError, pydot.InvocationException):
     return False
 
-def add_edge(dot, src, dst):
+def add_edge(dot, src, dst, name_suffix):
   """Adds edge from src to dst. """
-  if not dot.get_edge(src, dst):
-    dot.add_edge(pydot.Edge(src, dst))
+  src_name = src + name_suffix
+  dst_name = dst + name_suffix
+  if not dot.get_edge(src_name, dst_name):
+    dot.add_edge(pydot.Edge(src_name, dst_name))
 
-def plot_ops_graph(graph, to_file, highlight_patterns):
+def add_node(dot, node, name_suffix, highlight_patterns):
+  """Adds node to dot. """
+  label = node.op
+
+  fillcolor = 'white'
+  style = 'filled'
+
+  # Display the layout conversion direction.
+  if label == 'Transpose':
+    for input_name in node.input:
+      if 'nhwctonchw' in input_name.lower():
+        label += "\n(NHWC to NCHW)"
+      if 'nchwtonhwc' in input_name.lower():
+        label += "\n(NCHW to NHWC)"
+
+  # Display the fused ops.
+  if label == '_FusedMatMul':
+    fused_ops = node.attr['fused_ops'].list.s
+    label += "\n("
+    for op in fused_ops:
+      label += op.decode("utf-8") + ","
+    label += ")"
+
+  if 'T' in node.attr:
+    dt_type = node.attr['T'].type
+    if dt_type == DtType.DT_FLOAT.value:
+      label += '\ndtype=fp32'
+    if dt_type == DtType.DT_HALF.value:
+      label += '\ndtype=fp16'
+
+  if 'gpu' in node.device.lower():
+    label += '\ndevice=GPU'
+  else:
+    label += '\ndevice=CPU'
+
+  for pattern in highlight_patterns:
+    if label.startswith(pattern):
+      fillcolor = 'red'
+      style = '"dashed,filled"'
+
+  pynode = pydot.Node(node.name + name_suffix, label=label, style=style,
+                      fillcolor=fillcolor)
+  dot.add_node(pynode)
+
+def plot_ops_graph(graph, graph_opt, to_file, highlight_patterns):
   """Converts ops to dot format and save to a file. """
   if not check_pydot():
     message = (
@@ -62,56 +108,21 @@ def plot_ops_graph(graph, to_file, highlight_patterns):
 
   # Add all the nodes to the dot.
   for node in graph.node:
-    def format_shape(shape):
-      return str(shape).replace(str(None), 'None')
+    add_node(dot, node, '_orig', highlight_patterns)
 
-    label = node.op
-
-    fillcolor = 'white'
-    style = 'filled'
-
-    # Display the layout conversion direction.
-    if label == 'Transpose':
-      for input_name in node.input:
-        if 'nhwctonchw' in input_name.lower():
-          label += "\n(NHWC to NCHW)"
-        if 'nchwtonhwc' in input_name.lower():
-          label += "\n(NCHW to NHWC)"
-
-    # Display the fused ops.
-    if label == '_FusedMatMul':
-      fused_ops = node.attr['fused_ops'].list.s
-      label += "\n("
-      for op in fused_ops:
-        label += op.decode("utf-8") + ","
-      label += ")"
-
-    if 'T' in node.attr:
-      dt_type = node.attr['T'].type
-      if dt_type == DtType.DT_FLOAT.value:
-        label += '\ndtype=fp32'
-      if dt_type == DtType.DT_HALF.value:
-        label += '\ndtype=fp16'
-
-    if 'gpu' in node.device.lower():
-      label += '\ndevice=GPU'
-    else:
-      label += '\ndevice=CPU'
-
-    for pattern in highlight_patterns:
-      if label.startswith(pattern):
-        fillcolor = 'red'
-        style = '"dashed,filled"'
-
-    node = pydot.Node(node.name, label=label, style=style,
-                      fillcolor=fillcolor)
-    dot.add_node(node)
+  for node in graph_opt.node:
+    add_node(dot, node, '_opt', highlight_patterns)
 
   # Create edges for these nodes.
   for dst_node in graph.node:
     dst_node_name = dst_node.name
     for src_node_name in dst_node.input:
-      add_edge(dot, src_node_name, dst_node_name)
+      add_edge(dot, src_node_name, dst_node_name, "_orig")
+
+  for dst_node in graph_opt.node:
+    dst_node_name = dst_node.name
+    for src_node_name in dst_node.input:
+      add_edge(dot, src_node_name, dst_node_name, "_opt")
 
   file_name, extension = os.path.splitext(to_file)
   if not extension:
@@ -134,8 +145,8 @@ def _get_config(remapping_on=False, layout_on=False):
   config = config_pb2.ConfigProto(graph_options=graph_options)
   return config
 
-def print_op_graph(model_fn, input_shape, plot_file, remapping_on=True,
-                   layout_on=True, highlight_patterns=[]):
+def print_op_graph(model_fn, input_shape, plot_file, optimizers,
+                   highlight_patterns=[]):
   with context.graph_mode():
     run_options = config_pb2.RunOptions(output_partition_graphs=True)
     metadata = config_pb2.RunMetadata()
@@ -143,6 +154,13 @@ def print_op_graph(model_fn, input_shape, plot_file, remapping_on=True,
     ops.reset_default_graph()
     x = variables.Variable(random_ops.truncated_normal(input_shape, seed=0))
     out = model_fn(x)
+
+    remapping_on = True
+    if 'remapper' in optimizers:
+      remapping_on = False
+    layout_on = True
+    if 'layout' in optimizers:
+      layout_on = False
 
     # Compute reference value.
     config = _get_config(remapping_on=remapping_on, layout_on=layout_on)
@@ -152,4 +170,11 @@ def print_op_graph(model_fn, input_shape, plot_file, remapping_on=True,
           out, options=run_options, run_metadata=metadata)
       graph = metadata.partition_graphs[0]
 
-    plot_ops_graph(graph, plot_file, highlight_patterns)
+    config = _get_config(remapping_on=True, layout_on=True)
+    with session.Session(config=config) as sess:
+      sess.run(variables.global_variables_initializer())
+      output_val = sess.run(
+          out, options=run_options, run_metadata=metadata)
+      graph_opt = metadata.partition_graphs[0]
+
+    plot_ops_graph(graph, graph_opt, plot_file, highlight_patterns)

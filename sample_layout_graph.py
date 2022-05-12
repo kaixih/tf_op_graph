@@ -26,9 +26,6 @@ def conv_bias_relu_model(x):
   out = tf.nn.relu(z)
   return tf.identity(out)
 
-print_op_graph(conv_bias_relu_model, (n, h, w, c), "layout_opt.png",
-               remapping_on=False, layout_on=True,
-               highlight_patterns=['Transpose'])
-print_op_graph(conv_bias_relu_model, (n, h, w, c), "layout_unopt.png",
-               remapping_on=False, layout_on=False)
+print_op_graph(conv_bias_relu_model, (n, h, w, c), "layout_pass.png",
+               ['layout'], highlight_patterns=['Transpose'])
 
