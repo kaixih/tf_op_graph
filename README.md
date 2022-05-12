@@ -27,7 +27,7 @@ def sample_model(x):
   return out
  
 print_op_graph(sample_model, (m, k), "remapper_pass.png",
-               ['remapper'], highlight_patterns=['_Fused'])
+               ['remapper'])
 ```
 Then, an image will be generated to show the op graphs before and after the
 `remapping` optimization. In addition, the different nodes will be automatically
@@ -50,7 +50,7 @@ def conv_bias_relu_model(x):
   return out
 
 print_op_graph(conv_bias_relu_model, (n, c, h, w), "conv_fusion_pass.png",
-               ['remapper'], highlight_patterns=['_Fused'])
+               ['remapper'])
 ```
 ![Remapping pass](pics/conv_bias_relu.png)
 
@@ -69,7 +69,7 @@ def conv_bias_relu_model(x):
   return tf.identity(out)
 
 print_op_graph(conv_bias_relu_model, (n, h, w, c), "layout_pass.png",
-               ['layout'], highlight_patterns=['Transpose'])
+               ['layout'])
 ```
 ![Layout pass](pics/layout.png)
 
