@@ -46,8 +46,8 @@ def add_edge(dot, src, dst, name_suffix):
   if not dot.get_edge(src_name, dst_name):
     dot.add_edge(pydot.Edge(src_name, dst_name))
 
-def add_node(dot, node, name_suffix, marked_node_names, highlight_patterns):
-  """Adds node to dot. """
+def add_node(cluster, node, name_suffix, marked_node_names, highlight_patterns):
+  """Adds node to cluster. """
   label = node.op
 
   fillcolor = 'white'
@@ -91,7 +91,7 @@ def add_node(dot, node, name_suffix, marked_node_names, highlight_patterns):
       style = '"dashed,filled"'
 
   pynode = pydot.Node(graph_name, label=label, style=style, fillcolor=fillcolor)
-  dot.add_node(pynode)
+  cluster.add_node(pynode)
 
 def plot_ops_graph(graph, graph_opt, to_file, highlight_patterns):
   """Converts ops to dot format and save to a file. """
@@ -132,12 +132,18 @@ def plot_ops_graph(graph, graph_opt, to_file, highlight_patterns):
     if not found:
       marked_node_names[node_opt.name + graph_opt_suffix] = 'red'
 
+  cluster_before = pydot.Cluster('Before', label='Before')
+  cluster_after = pydot.Cluster('After', label='After')
   # Add all the nodes to the dot.
   for node in graph.node:
-    add_node(dot, node, graph_suffix, marked_node_names, highlight_patterns)
+    add_node(cluster_before, node, graph_suffix, marked_node_names,
+             highlight_patterns)
+  dot.add_subgraph(cluster_before)
 
   for node in graph_opt.node:
-    add_node(dot, node, graph_opt_suffix, marked_node_names, highlight_patterns)
+    add_node(cluster_after, node, graph_opt_suffix, marked_node_names,
+             highlight_patterns)
+  dot.add_subgraph(cluster_after)
 
   # Create edges for these nodes.
   for dst_node in graph.node:
