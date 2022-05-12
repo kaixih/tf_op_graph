@@ -26,17 +26,15 @@ def sample_model(x):
   out = tf.nn.relu(z)
   return out
  
-print_op_graph(sample_model, (m, k), "output_after.png",
-               remapping_on=True, highlight_patterns=['_Fused'])
-print_op_graph(sample_model, (m, k), "output_before.png",
-               remapping_on=False)
+print_op_graph(sample_model, (m, k), "remapper_pass.png",
+               ['remapper'], highlight_patterns=['_Fused'])
 ```
 Then, two images will be generated to show the op graphs before and after the
 `remapping` optimization. Note, at this point only `remapping_on` and
 `layout_on` options are supported.
 
 ## Sample
-### Remapping On & Off
+### Remapping OFF & ON
 ```python
 def conv_bias_relu_model(x):
   w = _weight([2, 2, c, c])
@@ -47,14 +45,12 @@ def conv_bias_relu_model(x):
   out = tf.nn.relu(z)
   return out
 
-print_op_graph(conv_bias_relu_model, (n, c, h, w), "conv_unfused.png",
-               remapping_on=False)
-print_op_graph(conv_bias_relu_model, (n, c, h, w), "conv_fused.png",
-               remapping_on=True, highlight_patterns=['_Fused'])
+print_op_graph(conv_bias_relu_model, (n, c, h, w), "conv_fusion_pass.png",
+               ['remapper'], highlight_patterns=['_Fused'])
 ```
 ![Remapping pass](pics/conv_bias_relu.png)
 
-### Layout Opt On & Off
+### Layout Opt OFF & ON
 ```python
 def conv_bias_relu_model(x):
   w = _weight([2, 2, c, c])
@@ -68,10 +64,7 @@ def conv_bias_relu_model(x):
   out = tf.nn.relu(z)
   return tf.identity(out)
 
-print_op_graph(conv_bias_relu_model, (n, h, w, c), "layout_unopt.png",
-               remapping_on=True, layout_on=False)
-print_op_graph(conv_bias_relu_model, (n, h, w, c), "layout_opt.png",
-               remapping_on=True, layout_on=True,
-               highlight_patterns=['Transpose'])
+print_op_graph(conv_bias_relu_model, (n, h, w, c), "layout_pass.png",
+               ['layout'], highlight_patterns=['Transpose'])
 ```
 ![Layout pass](pics/layout.png)
