@@ -29,8 +29,10 @@ def sample_model(x):
 print_op_graph(sample_model, (m, k), "remapper_pass.png",
                ['remapper'], highlight_patterns=['_Fused'])
 ```
-Then, two images will be generated to show the op graphs before and after the
-`remapping` optimization. Note, at this point only `remapping_on` and
+Then, an image will be generated to show the op graphs before and after the
+`remapping` optimization. In addition, the different nodes will be automatically
+highlighted in "green" (the nodes only in the left graph) and "red" (the nodes
+only in the right graph). Note, at this point only `remapping_on` and
 `layout_on` options are supported.
 
 ## Sample
