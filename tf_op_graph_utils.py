@@ -60,6 +60,10 @@ def add_node(cluster, node, name_suffix, marked_node_names, highlight_patterns):
         label += "\n(NHWC to NCHW)"
       if 'nchwtonhwc' in input_name.lower():
         label += "\n(NCHW to NHWC)"
+      if 'ndhwctoncdhw' in input_name.lower():
+        label += "\n(NDHWC to NCDHW)"
+      if 'ncdhwtondhwc' in input_name.lower():
+        label += "\n(NCDHW to NDHWC)"
 
   # Display the fused ops.
   if label == '_FusedMatMul':
