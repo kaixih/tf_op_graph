@@ -33,11 +33,11 @@ def conv_layerN_grad_relu_model(x):
   b = tf.cast(b, precision)
 
   y = tf.nn.conv2d(x, w, strides=(1, 1), padding='SAME', data_format='NHWC')
-  z, _, _ = nv_norms.fused_layer_norm_grad(y, x, gamma, reserve_space_1,
+  z, _, _ = nv_norms.fused_layer_norm_grad(y, y, gamma, reserve_space_1,
                                            reserve_space_2)
   x = tf.nn.relu(z)
   y = tf.nn.conv2d(x, w, strides=(1, 1), padding='SAME', data_format='NHWC')
-  z, _, _ = nv_norms.fused_layer_norm_grad(y, x, gamma, reserve_space_1,
+  z, _, _ = nv_norms.fused_layer_norm_grad(y, y, gamma, reserve_space_1,
                                            reserve_space_2)
   out = tf.nn.relu(z)
   return tf.identity(out)

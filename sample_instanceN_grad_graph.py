@@ -34,11 +34,11 @@ def conv_instanceN_grad_relu_model(x):
 
   y = tf.nn.conv2d(x, w, strides=(1, 1), padding='SAME', data_format='NHWC')
   z, _, _ = nv_norms.fused_instance_norm_grad(
-      y, x, gamma, reserve_space_1, reserve_space_2, data_format='NHWC')
+      y, y, gamma, reserve_space_1, reserve_space_2, data_format='NHWC')
   x = tf.nn.relu(z)
   y = tf.nn.conv2d(x, w, strides=(1, 1), padding='SAME', data_format='NHWC')
   z, _, _ = nv_norms.fused_instance_norm_grad(
-      y, x, gamma, reserve_space_1, reserve_space_2, data_format='NHWC')
+      y, y, gamma, reserve_space_1, reserve_space_2, data_format='NHWC')
   out = tf.nn.relu(z)
   return tf.identity(out)
 
