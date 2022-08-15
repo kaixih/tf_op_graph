@@ -215,8 +215,8 @@ def _get_config(options):
   config = config_pb2.ConfigProto(graph_options=graph_options)
   return config
 
-def print_op_graph(model_fn, input_shape, plot_file, optimizers,
-                   highlight_patterns=[]):
+def print_op_graph(model_fn, input_shape, plot_file, optimizers = [],
+                   highlight_patterns = []):
   options = {}
   opt_on = rewriter_config_pb2.RewriterConfig.ON
   opt_off = rewriter_config_pb2.RewriterConfig.OFF
@@ -238,6 +238,10 @@ def print_op_graph(model_fn, input_shape, plot_file, optimizers,
       sess.run(variables.global_variables_initializer())
       _ = sess.run(out, options=run_options, run_metadata=metadata)
       graph = metadata.partition_graphs[0]
+
+  if len(optimizers) == 0:
+    plot_graph_def(graph, plot_file)
+    return
 
   # Reset options.
   for key in options:
