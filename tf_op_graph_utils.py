@@ -29,24 +29,33 @@ class DtType(enum.Enum):
 
 def check_pydot():
   """Returns True if PyDot and Graphviz are available."""
-  if pydot is None:
-    return False
-  try:
-    # Attempt to create an image of a blank graph
-    # to check the pydot/graphviz installation.
-    pydot.Dot.create(pydot.Dot())
-    return True
-  except (OSError, pydot.InvocationException):
-    return False
+  passed = False
+  if pydot is not None:
+    try:
+      # Attempt to create an image of a blank graph
+      # to check the pydot/graphviz installation.
+      pydot.Dot.create(pydot.Dot())
+      passed = True
+    except (OSError, pydot.InvocationException):
+      passed = False
 
-def add_edge(dot, src, dst, name_suffix):
+  if not passed:
+    message = (
+        'You must install pydot and install graphviz (see instructions at '
+        'https://graphviz.gitlab.io/download/) for plot_to_file option to '
+        'work. For example: \n'
+        '`pip install pydot && apt update && apt install -y graphviz`.')
+    raise ImportError(message)
+
+def add_edge_helper(dot, src, dst, name_suffix = ""):
   """Adds edge from src to dst. """
   src_name = src + name_suffix
   dst_name = dst + name_suffix
   if not dot.get_edge(src_name, dst_name):
     dot.add_edge(pydot.Edge(src_name, dst_name))
 
-def add_node(cluster, node, name_suffix, marked_node_names, highlight_patterns):
+def add_node_helper(cluster, node, name_suffix = "", marked_node_names = {},
+                    highlight_patterns = []):
   """Adds node to cluster. """
   label = node.op
 
@@ -97,15 +106,42 @@ def add_node(cluster, node, name_suffix, marked_node_names, highlight_patterns):
   pynode = pydot.Node(graph_name, label=label, style=style, fillcolor=fillcolor)
   cluster.add_node(pynode)
 
+def plot_graph_def(graph, dest_path):
+  """Plots graph def with dot format. """
+  try:
+    check_pydot()
+  except ImportError as e:
+    raise e
+
+  dot = pydot.Dot()
+  dot.set('rankdir', 'TB')
+  dot.set('concentrate', True)
+  dot.set('dpi', 96)
+  dot.set_node_defaults(shape='record')
+
+  # Add all the nodes to the dot.
+  for node in graph.node:
+    add_node_helper(dot, node)
+
+  # Create edges for these nodes.
+  for dst_node in graph.node:
+    dst_node_name = dst_node.name
+    for src_node_name in dst_node.input:
+      add_edge_helper(dot, src_node_name, dst_node_name)
+
+  file_name, extension = os.path.splitext(dest_path)
+  extension = extension[1:] if extension else 'png'
+
+  dot.write(file_name + '.' + extension, format=extension)
+  print("[TF-OP-GRAPH] The graph_def is plotted to %s." % dest_path)
+
+
 def plot_ops_graph(graph, graph_opt, to_file, highlight_patterns):
   """Converts ops to dot format and save to a file. """
-  if not check_pydot():
-    message = (
-        'You must install pydot and install graphviz (see instructions at '
-        'https://graphviz.gitlab.io/download/) for plot_to_file option to '
-        'work. For example: \n'
-        '`pip install pydot && apt update && apt install -y graphviz`.')
-    raise ImportError(message)
+  try:
+    check_pydot()
+  except ImportError as e:
+    raise e
 
   dot = pydot.Dot()
   dot.set('rankdir', 'TB')
@@ -140,25 +176,25 @@ def plot_ops_graph(graph, graph_opt, to_file, highlight_patterns):
   cluster_after = pydot.Cluster('After', label='After')
   # Add all the nodes to the dot.
   for node in graph.node:
-    add_node(cluster_before, node, graph_suffix, marked_node_names,
-             highlight_patterns)
+    add_node_helper(cluster_before, node, graph_suffix, marked_node_names,
+                    highlight_patterns)
   dot.add_subgraph(cluster_before)
 
   for node in graph_opt.node:
-    add_node(cluster_after, node, graph_opt_suffix, marked_node_names,
-             highlight_patterns)
+    add_node_helper(cluster_after, node, graph_opt_suffix, marked_node_names,
+                    highlight_patterns)
   dot.add_subgraph(cluster_after)
 
   # Create edges for these nodes.
   for dst_node in graph.node:
     dst_node_name = dst_node.name
     for src_node_name in dst_node.input:
-      add_edge(dot, src_node_name, dst_node_name, graph_suffix)
+      add_edge_helper(dot, src_node_name, dst_node_name, graph_suffix)
 
   for dst_node in graph_opt.node:
     dst_node_name = dst_node.name
     for src_node_name in dst_node.input:
-      add_edge(dot, src_node_name, dst_node_name, graph_opt_suffix)
+      add_edge_helper(dot, src_node_name, dst_node_name, graph_opt_suffix)
 
   file_name, extension = os.path.splitext(to_file)
   if not extension:
