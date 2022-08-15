@@ -217,6 +217,13 @@ def _get_config(options):
 
 def print_op_graph(model_fn, input_shape, plot_file, optimizers,
                    highlight_patterns=[]):
+  options = {}
+  opt_on = rewriter_config_pb2.RewriterConfig.ON
+  opt_off = rewriter_config_pb2.RewriterConfig.OFF
+  options['remapper'] = opt_off if 'remapper' in optimizers else opt_on
+  options['layout'] = opt_off if 'layout' in optimizers else opt_on
+  options['arithmetic'] = opt_off if 'arithmetic' in optimizers else opt_on
+
   with context.graph_mode():
     run_options = config_pb2.RunOptions(output_partition_graphs=True)
     metadata = config_pb2.RunMetadata()
@@ -225,28 +232,29 @@ def print_op_graph(model_fn, input_shape, plot_file, optimizers,
     x = variables.Variable(random_ops.truncated_normal(input_shape, seed=0))
     out = model_fn(x)
 
-    options = {}
-    opt_on = rewriter_config_pb2.RewriterConfig.ON
-    opt_off = rewriter_config_pb2.RewriterConfig.OFF
-    options['remapper'] = opt_off if 'remapper' in optimizers else opt_on
-    options['layout'] = opt_off if 'layout' in optimizers else opt_on
-    options['arithmetic'] = opt_off if 'arithmetic' in optimizers else opt_on
-
     # Compute reference value.
     config = _get_config(options)
     with session.Session(config=config) as sess:
       sess.run(variables.global_variables_initializer())
-      output_val_ref = sess.run(
-          out, options=run_options, run_metadata=metadata)
+      _ = sess.run(out, options=run_options, run_metadata=metadata)
       graph = metadata.partition_graphs[0]
 
-    for key in options:
-      options[key] = opt_on
+  # Reset options.
+  for key in options:
+    options[key] = opt_on
+
+  with context.graph_mode():
+    run_options = config_pb2.RunOptions(output_partition_graphs=True)
+    metadata = config_pb2.RunMetadata()
+
+    ops.reset_default_graph()
+    x = variables.Variable(random_ops.truncated_normal(input_shape, seed=0))
+    out = model_fn(x)
+
     config = _get_config(options)
     with session.Session(config=config) as sess:
       sess.run(variables.global_variables_initializer())
-      output_val = sess.run(
-          out, options=run_options, run_metadata=metadata)
+      _ = sess.run(out, options=run_options, run_metadata=metadata)
       graph_opt = metadata.partition_graphs[0]
 
-    plot_ops_graph(graph, graph_opt, plot_file, highlight_patterns)
+  plot_ops_graph(graph, graph_opt, plot_file, highlight_patterns)
