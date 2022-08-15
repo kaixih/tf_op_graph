@@ -23,5 +23,5 @@ def conv_bias_relu_model(x):
   out = tf.nn.relu(z)
   return out
 
-print_op_graph(conv_bias_relu_model, (n, c, h, w), "single_pass.png")
+print_op_graph(conv_bias_relu_model, (n, c, h, w), "test_graph_def.png")
 
