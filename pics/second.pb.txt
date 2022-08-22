@@ -1,0 +1,267 @@
+node {
+  name: "Variable"
+  op: "VarHandleOp"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "allowed_devices"
+    value {
+      list {
+      }
+    }
+  }
+  attr {
+    key: "container"
+    value {
+      s: ""
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "shape"
+    value {
+      shape {
+        dim {
+          size: 5
+        }
+        dim {
+          size: 4
+        }
+        dim {
+          size: 3
+        }
+        dim {
+          size: 3
+        }
+      }
+    }
+  }
+  attr {
+    key: "shared_name"
+    value {
+      s: "Variable"
+    }
+  }
+}
+node {
+  name: "Variable_1"
+  op: "VarHandleOp"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "allowed_devices"
+    value {
+      list {
+      }
+    }
+  }
+  attr {
+    key: "container"
+    value {
+      s: ""
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "shape"
+    value {
+      shape {
+        dim {
+          size: 2
+        }
+        dim {
+          size: 2
+        }
+        dim {
+          size: 4
+        }
+        dim {
+          size: 4
+        }
+      }
+    }
+  }
+  attr {
+    key: "shared_name"
+    value {
+      s: "Variable_1"
+    }
+  }
+}
+node {
+  name: "Variable_2"
+  op: "VarHandleOp"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "allowed_devices"
+    value {
+      list {
+      }
+    }
+  }
+  attr {
+    key: "container"
+    value {
+      s: ""
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "shape"
+    value {
+      shape {
+        dim {
+          size: 4
+        }
+      }
+    }
+  }
+  attr {
+    key: "shared_name"
+    value {
+      s: "Variable_2"
+    }
+  }
+}
+node {
+  name: "Conv2D/ReadVariableOp"
+  op: "ReadVariableOp"
+  input: "Variable"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "Conv2D/ReadVariableOp_1"
+  op: "ReadVariableOp"
+  input: "Variable_1"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "BiasAdd/ReadVariableOp"
+  op: "ReadVariableOp"
+  input: "Variable_2"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "Relu"
+  op: "_FusedConv2D"
+  input: "Conv2D/ReadVariableOp"
+  input: "Conv2D/ReadVariableOp_1"
+  input: "BiasAdd/ReadVariableOp"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "data_format"
+    value {
+      s: "NCHW"
+    }
+  }
+  attr {
+    key: "dilations"
+    value {
+      list {
+        i: 1
+        i: 1
+        i: 1
+        i: 1
+      }
+    }
+  }
+  attr {
+    key: "epsilon"
+    value {
+      f: 0
+    }
+  }
+  attr {
+    key: "explicit_paddings"
+    value {
+      list {
+      }
+    }
+  }
+  attr {
+    key: "fused_ops"
+    value {
+      list {
+        s: "BiasAdd"
+        s: "Relu"
+      }
+    }
+  }
+  attr {
+    key: "leakyrelu_alpha"
+    value {
+      f: 0.2
+    }
+  }
+  attr {
+    key: "num_args"
+    value {
+      i: 1
+    }
+  }
+  attr {
+    key: "padding"
+    value {
+      s: "SAME"
+    }
+  }
+  attr {
+    key: "strides"
+    value {
+      list {
+        i: 1
+        i: 1
+        i: 1
+        i: 1
+      }
+    }
+  }
+  attr {
+    key: "use_cudnn_on_gpu"
+    value {
+      b: true
+    }
+  }
+}
+library {
+}
+versions {
+  producer: 1087
+}

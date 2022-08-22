@@ -1,0 +1,926 @@
+node {
+  name: "truncated_normal/shape"
+  op: "Const"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 4
+          }
+        }
+        tensor_content: "\005\000\000\000\004\000\000\000\003\000\000\000\003\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "truncated_normal/mean"
+  op: "Const"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: 0
+      }
+    }
+  }
+}
+node {
+  name: "truncated_normal/stddev"
+  op: "Const"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "truncated_normal/TruncatedNormal"
+  op: "TruncatedNormal"
+  input: "truncated_normal/shape"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "T"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "seed"
+    value {
+      i: 87654321
+    }
+  }
+  attr {
+    key: "seed2"
+    value {
+      i: 0
+    }
+  }
+}
+node {
+  name: "truncated_normal/mul"
+  op: "Mul"
+  input: "truncated_normal/TruncatedNormal"
+  input: "truncated_normal/stddev"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "truncated_normal"
+  op: "AddV2"
+  input: "truncated_normal/mul"
+  input: "truncated_normal/mean"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "Variable"
+  op: "VarHandleOp"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@Variable"
+      }
+    }
+  }
+  attr {
+    key: "allowed_devices"
+    value {
+      list {
+      }
+    }
+  }
+  attr {
+    key: "container"
+    value {
+      s: ""
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "shape"
+    value {
+      shape {
+        dim {
+          size: 5
+        }
+        dim {
+          size: 4
+        }
+        dim {
+          size: 3
+        }
+        dim {
+          size: 3
+        }
+      }
+    }
+  }
+  attr {
+    key: "shared_name"
+    value {
+      s: "Variable"
+    }
+  }
+}
+node {
+  name: "Variable/IsInitialized/VarIsInitializedOp"
+  op: "VarIsInitializedOp"
+  input: "Variable"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+}
+node {
+  name: "Variable/Assign"
+  op: "AssignVariableOp"
+  input: "Variable"
+  input: "truncated_normal"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "validate_shape"
+    value {
+      b: false
+    }
+  }
+}
+node {
+  name: "Variable/Read/ReadVariableOp"
+  op: "ReadVariableOp"
+  input: "Variable"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "Variable_1/Initializer/random_uniform/shape"
+  op: "Const"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@Variable_1"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 4
+          }
+        }
+        tensor_content: "\002\000\000\000\002\000\000\000\004\000\000\000\004\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "Variable_1/Initializer/random_uniform/min"
+  op: "Const"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@Variable_1"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: -0.433012694
+      }
+    }
+  }
+}
+node {
+  name: "Variable_1/Initializer/random_uniform/max"
+  op: "Const"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@Variable_1"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: 0.433012694
+      }
+    }
+  }
+}
+node {
+  name: "Variable_1/Initializer/random_uniform/RandomUniform"
+  op: "RandomUniform"
+  input: "Variable_1/Initializer/random_uniform/shape"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "T"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@Variable_1"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "seed"
+    value {
+      i: 87654321
+    }
+  }
+  attr {
+    key: "seed2"
+    value {
+      i: 0
+    }
+  }
+}
+node {
+  name: "Variable_1/Initializer/random_uniform/sub"
+  op: "Sub"
+  input: "Variable_1/Initializer/random_uniform/max"
+  input: "Variable_1/Initializer/random_uniform/min"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@Variable_1"
+      }
+    }
+  }
+}
+node {
+  name: "Variable_1/Initializer/random_uniform/mul"
+  op: "Mul"
+  input: "Variable_1/Initializer/random_uniform/RandomUniform"
+  input: "Variable_1/Initializer/random_uniform/sub"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@Variable_1"
+      }
+    }
+  }
+}
+node {
+  name: "Variable_1/Initializer/random_uniform"
+  op: "AddV2"
+  input: "Variable_1/Initializer/random_uniform/mul"
+  input: "Variable_1/Initializer/random_uniform/min"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@Variable_1"
+      }
+    }
+  }
+}
+node {
+  name: "Variable_1"
+  op: "VarHandleOp"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@Variable_1"
+      }
+    }
+  }
+  attr {
+    key: "allowed_devices"
+    value {
+      list {
+      }
+    }
+  }
+  attr {
+    key: "container"
+    value {
+      s: ""
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "shape"
+    value {
+      shape {
+        dim {
+          size: 2
+        }
+        dim {
+          size: 2
+        }
+        dim {
+          size: 4
+        }
+        dim {
+          size: 4
+        }
+      }
+    }
+  }
+  attr {
+    key: "shared_name"
+    value {
+      s: "Variable_1"
+    }
+  }
+}
+node {
+  name: "Variable_1/IsInitialized/VarIsInitializedOp"
+  op: "VarIsInitializedOp"
+  input: "Variable_1"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+}
+node {
+  name: "Variable_1/Assign"
+  op: "AssignVariableOp"
+  input: "Variable_1"
+  input: "Variable_1/Initializer/random_uniform"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "validate_shape"
+    value {
+      b: false
+    }
+  }
+}
+node {
+  name: "Variable_1/Read/ReadVariableOp"
+  op: "ReadVariableOp"
+  input: "Variable_1"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "Variable_2/Initializer/random_uniform/shape"
+  op: "Const"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@Variable_2"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 4
+      }
+    }
+  }
+}
+node {
+  name: "Variable_2/Initializer/random_uniform/min"
+  op: "Const"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@Variable_2"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: -0.866025388
+      }
+    }
+  }
+}
+node {
+  name: "Variable_2/Initializer/random_uniform/max"
+  op: "Const"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@Variable_2"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: 0.866025388
+      }
+    }
+  }
+}
+node {
+  name: "Variable_2/Initializer/random_uniform/RandomUniform"
+  op: "RandomUniform"
+  input: "Variable_2/Initializer/random_uniform/shape"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "T"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@Variable_2"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "seed"
+    value {
+      i: 87654321
+    }
+  }
+  attr {
+    key: "seed2"
+    value {
+      i: 0
+    }
+  }
+}
+node {
+  name: "Variable_2/Initializer/random_uniform/sub"
+  op: "Sub"
+  input: "Variable_2/Initializer/random_uniform/max"
+  input: "Variable_2/Initializer/random_uniform/min"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@Variable_2"
+      }
+    }
+  }
+}
+node {
+  name: "Variable_2/Initializer/random_uniform/mul"
+  op: "Mul"
+  input: "Variable_2/Initializer/random_uniform/RandomUniform"
+  input: "Variable_2/Initializer/random_uniform/sub"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@Variable_2"
+      }
+    }
+  }
+}
+node {
+  name: "Variable_2/Initializer/random_uniform"
+  op: "AddV2"
+  input: "Variable_2/Initializer/random_uniform/mul"
+  input: "Variable_2/Initializer/random_uniform/min"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@Variable_2"
+      }
+    }
+  }
+}
+node {
+  name: "Variable_2"
+  op: "VarHandleOp"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@Variable_2"
+      }
+    }
+  }
+  attr {
+    key: "allowed_devices"
+    value {
+      list {
+      }
+    }
+  }
+  attr {
+    key: "container"
+    value {
+      s: ""
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "shape"
+    value {
+      shape {
+        dim {
+          size: 4
+        }
+      }
+    }
+  }
+  attr {
+    key: "shared_name"
+    value {
+      s: "Variable_2"
+    }
+  }
+}
+node {
+  name: "Variable_2/IsInitialized/VarIsInitializedOp"
+  op: "VarIsInitializedOp"
+  input: "Variable_2"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+}
+node {
+  name: "Variable_2/Assign"
+  op: "AssignVariableOp"
+  input: "Variable_2"
+  input: "Variable_2/Initializer/random_uniform"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "validate_shape"
+    value {
+      b: false
+    }
+  }
+}
+node {
+  name: "Variable_2/Read/ReadVariableOp"
+  op: "ReadVariableOp"
+  input: "Variable_2"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "Conv2D/ReadVariableOp"
+  op: "ReadVariableOp"
+  input: "Variable"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "Conv2D/ReadVariableOp_1"
+  op: "ReadVariableOp"
+  input: "Variable_1"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "Conv2D"
+  op: "Conv2D"
+  input: "Conv2D/ReadVariableOp"
+  input: "Conv2D/ReadVariableOp_1"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "data_format"
+    value {
+      s: "NCHW"
+    }
+  }
+  attr {
+    key: "dilations"
+    value {
+      list {
+        i: 1
+        i: 1
+        i: 1
+        i: 1
+      }
+    }
+  }
+  attr {
+    key: "explicit_paddings"
+    value {
+      list {
+      }
+    }
+  }
+  attr {
+    key: "padding"
+    value {
+      s: "SAME"
+    }
+  }
+  attr {
+    key: "strides"
+    value {
+      list {
+        i: 1
+        i: 1
+        i: 1
+        i: 1
+      }
+    }
+  }
+  attr {
+    key: "use_cudnn_on_gpu"
+    value {
+      b: true
+    }
+  }
+}
+node {
+  name: "BiasAdd/ReadVariableOp"
+  op: "ReadVariableOp"
+  input: "Variable_2"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "BiasAdd"
+  op: "BiasAdd"
+  input: "Conv2D"
+  input: "BiasAdd/ReadVariableOp"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "data_format"
+    value {
+      s: "NCHW"
+    }
+  }
+}
+node {
+  name: "Relu"
+  op: "Relu"
+  input: "BiasAdd"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "init"
+  op: "NoOp"
+  input: "^Variable/Assign"
+  input: "^Variable_1/Assign"
+  input: "^Variable_2/Assign"
+  device: "/job:localhost/replica:0/task:0/device:GPU:0"
+}
+library {
+}
+versions {
+  producer: 1087
+}
