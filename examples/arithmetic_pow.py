@@ -3,8 +3,7 @@ import os
 os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 import tensorflow as tf
-
-from tf_op_graph_utils import print_op_graph
+import tf_op_graph_vis
 
 m, n, k = (3, 3, 4)  # Matrix dimensions
 precision = tf.float32
@@ -15,6 +14,6 @@ def pow_model(x):
   out = tf.math.pow(x, 3.0)
   return out
 
-print_op_graph(pow_model, (m, k), "pow_arithmetic_pass.png",
-               ['arithmetic'])
+tf_op_graph_vis.grappler_optimized_graph(
+    pow_model, (m, k), "arithmetic_pow.png", ['arithmetic'])
 

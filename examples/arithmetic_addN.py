@@ -1,6 +1,5 @@
 import tensorflow as tf
-
-from tf_op_graph_utils import print_op_graph
+import tf_op_graph_vis
 
 def _weight(shape):
   """Generates a weight of a given shape."""
@@ -20,7 +19,7 @@ def multi_add_model(x):
 
   with tf.GradientTape() as g:
     g.watch(x)
-    # Add a relu node to make sure the conv2d_backprop is not the last node.
+    # Insert a relu node to make sure the conv2d_backprop is not the last node.
     x0 = tf.nn.relu(x)
     y0 = tf.nn.conv2d(x0, w0, 1, 'SAME')
     y1 = tf.nn.conv2d(y0, w1, 1, 'SAME')
@@ -35,6 +34,6 @@ def multi_add_model(x):
 
   return grads
 
-print_op_graph(multi_add_model, (n, h, w, c), "demo.png",
-               ["arithmetic"])
+tf_op_graph_vis.grappler_optimized_graph(
+    multi_add_model, (n, h, w, c), "arithmetic_addN.png", ["arithmetic"])
 

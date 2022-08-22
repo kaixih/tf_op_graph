@@ -1,6 +1,5 @@
 import tensorflow as tf
-
-from tf_op_graph_utils import print_op_graph
+import tf_op_graph_vis
 
 def _weight(shape):
   """Generates a weight of a given shape."""
@@ -18,10 +17,14 @@ def conv_bias_relu_model(x):
   w = tf.cast(w, precision)
   b = tf.cast(b, precision)
 
-  y = tf.nn.conv2d(x, w, strides=(1, 1), padding='SAME', data_format='NCHW')
-  z = tf.nn.bias_add(y, b, data_format='NC..')
+  y = tf.nn.conv2d(x, w, strides=(1, 1), padding='SAME', data_format='NHWC')
+  z = tf.nn.bias_add(y, b, data_format='N..C')
+  x = tf.nn.relu(z)
+  y = tf.nn.conv2d(x, w, strides=(1, 1), padding='SAME', data_format='NHWC')
+  z = tf.nn.bias_add(y, b, data_format='N..C')
   out = tf.nn.relu(z)
-  return out
+  return tf.identity(out)
 
-print_op_graph(conv_bias_relu_model, (n, c, h, w), "test_graph_def.png")
+tf_op_graph_vis.grappler_optimized_graph(
+    conv_bias_relu_model, (n, h, w, c), "layout_fp32.png", ['layout'])
 
