@@ -12,76 +12,32 @@ changes the graph, this tool can be used to print out the op graphs before and
 after any specified optimization pass.
 
 ### Usage
-1. Install the dependencies
+1. Install the dependencies.
 ```bash
 pip install pydot && apt update && apt install -y graphviz
 ```
-2. Call the `print_op_graph` function
-```python
-def sample_model(x):
-  w = _weight([k, n])
-  b = _weight([n])
-  y = tf.linalg.matmul(x, w)
-  z = tf.nn.bias_add(y, b)
-  out = tf.nn.relu(z)
-  return out
- 
-print_op_graph(sample_model, (m, k), "remapper_pass.png",
-               ['remapper'])
+2. Clone the project and install it.
+```bash
+pip install .
 ```
-Then, an image will be generated to show the op graphs before and after the
-`remapping` optimization. In addition, the different nodes will be automatically
-highlighted in "green" (the nodes only in the left graph) and "red" (the nodes
-only in the right graph).
+3. Using the API to plot the op graphs before and after a specified optimizer.
+```python
+import tf_op_graph_vis
+tf_op_graph_vis.grappler_optimized_graph(
+    conv_bias_relu_model, (n, c, h, w), "remapper_conv_bias_relu.png",
+    ['remapper'])
+```
+The above example generate the op graphs before and after the `remapping`
+optimization. In the generated graphs, we do a simple graph identity check so
+that the nodes only in the "before" graph will be colored to "green" and the
+nodes only in the right graph are "red".
 
 Note, at this point we only support three optimizers: `remapper`, `layout`, and
-`arithmetic`.
+`arithmetic`. There are many sample codes in [examples](examples). For example,
+this sample will generate the following graph.
 
-## Sample
-### Remapping OFF & ON
-```python
-def conv_bias_relu_model(x):
-  w = _weight([2, 2, c, c])
-  b = _weight([c])
-
-  y = tf.nn.conv2d(x, w, strides=(1, 1), padding='SAME', data_format='NCHW')
-  z = tf.nn.bias_add(y, b, data_format='NC..')
-  out = tf.nn.relu(z)
-  return out
-
-print_op_graph(conv_bias_relu_model, (n, c, h, w), "conv_fusion_pass.png",
-               ['remapper'])
+```bash
+python examples/remapper_conv_bias_relu.py
 ```
-![Remapping pass](pics/conv_bias_relu.png)
+![Remapping pass](pics/remapper_conv_bias_relu.png)
 
-### Layout Opt OFF & ON
-```python
-def conv_bias_relu_model(x):
-  w = _weight([2, 2, c, c])
-  b = _weight([c])
-
-  y = tf.nn.conv2d(x, w, strides=(1, 1), padding='SAME', data_format='NHWC')
-  z = tf.nn.bias_add(y, b, data_format='N..C')
-  x = tf.nn.relu(z)
-  y = tf.nn.conv2d(x, w, strides=(1, 1), padding='SAME', data_format='NHWC')
-  z = tf.nn.bias_add(y, b, data_format='N..C')
-  out = tf.nn.relu(z)
-  return tf.identity(out)
-
-print_op_graph(conv_bias_relu_model, (n, h, w, c), "layout_pass.png",
-               ['layout'])
-```
-![Layout pass](pics/layout.png)
-
-### Arithmetic Opt OFF & ON
-```python
-def pow_model(x):
-  x = tf.cast(x, precision)
-
-  out = tf.math.pow(x, 3.0)
-  return out
-
-print_op_graph(pow_model, (m, k), "pow_arithmetic_pass.png",
-               ['arithmetic'])
-```
-![Arithmetic pass](pics/arithmetic_opt.png)
