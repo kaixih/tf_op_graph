@@ -1,4 +1,4 @@
-## TF Grappler Optimized Operation Graph
+# TF Grappler Optimized Operation Graph
 
 A visualization tool to display TF-Grappler optimized op graph. Grappler is the
 default graph optimization system in the TensorFlow runtime. Many different
@@ -11,7 +11,7 @@ the op graph before the grappler passes. To better understand how the grappler
 changes the graph, this tool can be used to print out the op graphs before and
 after any specified optimization pass.
 
-### Usage
+## Usage
 1. Install the dependencies.
 ```bash
 pip install pydot && apt update && apt install -y graphviz
@@ -27,15 +27,27 @@ tf_op_graph_vis.grappler_optimized_graph(
     conv_bias_relu_model, (n, c, h, w), "remapper_conv_bias_relu.png",
     ['remapper'])
 ```
-The above example generate the op graphs before and after the `remapping`
-optimization. In the generated graphs, we do a simple graph identity check so
-that the nodes only in the "before" graph will be colored to "green" and the
-nodes only in the right graph are "red".
+The above example generates the op graphs before and after the `remapping`
+optimization. Note, at this point we only support three optimizers: `remapper`,
+`layout`, and `arithmetic`. There are many sample codes in [examples](examples).
+For example, this sample will generate the following graph.
 
-Note, at this point we only support three optimizers: `remapper`, `layout`, and
-`arithmetic`. There are many sample codes in [examples](examples). For example,
-this sample will generate the following graph.
+## Plotted Graphs
+In the generated graphs, we conduct a simple graph identity check so that the
+nodes getting changed will be highlighted:
 
+* <span style="color:green">GREEN</span>: The nodes appear only in the "before"
+  graph.
+* <span style="color:red">RED</span>: The nodes appear only in the "after"
+  graph.
+* <span style="color:grey">GREY</span>: The nodes get deleted from the "before"
+  graph.
+
+Note: usually the green nodes are transformed to the red nodes. In addition, the
+plotted graph supports the control edges (in dashed lines) and port numbers (if
+they are not 0s).
+
+## Samples
 ```bash
 python examples/remapper_conv_bias_relu.py
 ```
