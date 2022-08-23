@@ -170,6 +170,7 @@ def pydot_dot_to_pic(dot, to_file):
 
 def compare_graphs(cluster0, cluster1, dot):
   global _name_suffix
+
   def color_nodes(c0, c1, color, need_suffix):
     for n0 in c0.get_nodes():
       need_strip = False
@@ -184,9 +185,18 @@ def compare_graphs(cluster0, cluster1, dot):
       if need_strip:
         node_name = '\"' + node_name + '\"'
       matched_nodes = c1.get_node(node_name)
+
+      # We view the two nodes are identical if they have the same name (a unique
+      # identifier) and the same label (which includes op/device info, data
+      # type, etc.).
+      node_label = n0.get_label()
       if (len(matched_nodes) == 0):
         n0.set_style('filled')
+        n0.set_fillcolor('grey')
+      elif (matched_nodes[0].get_label() != node_label):
+        n0.set_style('filled')
         n0.set_fillcolor(color)
+
   color_nodes(cluster0, cluster1, 'green', True)
   color_nodes(cluster1, cluster0, 'red', False)
 
