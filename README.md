@@ -37,11 +37,13 @@ In the generated graphs, we conduct a simple graph identity check so that the
 nodes getting changed will be highlighted:
 
 * <span style="color:green">GREEN</span>: The nodes appear only in the "before"
-  graph.
+  graph. They have the corresponding nodes in the "after" graph with the same
+  names but different contents, such as the operation, dtype, etc.
 * <span style="color:red">RED</span>: The nodes appear only in the "after"
-  graph.
+  graph. They have the corresponding nodes in the "before" graph with the same
+  names but different contents, such as the operation, dtype, etc.
 * <span style="color:grey">GREY</span>: The nodes get deleted from the "before"
-  graph.
+  graph or get added in the "after" graph.
 
 Note: usually the green nodes are transformed to the red nodes. In addition, the
 plotted graph supports the control edges (in dashed lines) and port numbers (if
