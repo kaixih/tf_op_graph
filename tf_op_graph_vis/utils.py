@@ -100,10 +100,24 @@ def check_pydot():
 def add_edge_helper(cluster, src, dst, need_suffix):
   """Adds edge of src->dst to cluster. """
   global _name_suffix
+  style='solid'
+  port_label = ''
   if not cluster.get_edge(src, dst):
+    # Control edge detected.
+    if src.startswith('^'):
+      src = src.lstrip('^')
+      style = 'dashed'
+
+    # Get the port number if exists.
+    maybe_port_nums = src.split(':')
+    if len(maybe_port_nums) > 0 and maybe_port_nums[-1].isnumeric():
+      src = src.replace(':' + maybe_port_nums[-1], '')
+      port_label = 'p\:' + maybe_port_nums[-1]
+
     src = src + (_name_suffix if need_suffix else "")
     dst = dst + (_name_suffix if need_suffix else "")
-    cluster.add_edge(pydot.Edge(src, dst))
+
+    cluster.add_edge(pydot.Edge(src, dst, style=style, taillabel=port_label))
 
 
 def get_custom_label(node):
