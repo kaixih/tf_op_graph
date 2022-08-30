@@ -16,9 +16,9 @@ after any specified optimization pass.
 ```bash
 pip install pydot && apt update && apt install -y graphviz
 ```
-2. Clone the project and install it.
+2. Install the visualization tool.
 ```bash
-pip install .
+pip install --no-cache-dir git+https://github.com/kaixih/tf_op_graph.git
 ```
 3. Using the API to plot the op graphs before and after a specified optimizer.
 ```python
