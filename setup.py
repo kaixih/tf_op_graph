@@ -7,5 +7,9 @@ setup(
     description=('tf_op_graph_vis is for visualizing TF graph_def files.'),
     author='Kaixi Hou',
     packages=find_packages(),
+    entry_points = {
+        'console_scripts':
+            ['graphdef2pydot=tf_op_graph_vis.tf_graphdef_to_pydot:main'],
+    },
     license='Apache 2.0',
 )

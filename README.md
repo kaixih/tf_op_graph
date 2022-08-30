@@ -55,8 +55,9 @@ python examples/remapper_conv_bias_relu.py
 ```
 ![Remapping pass](pics/remapper_conv_bias_relu.png)
 
-Besides, we also provide a utility tool to load existing graph def files and visualize them, as:
+Besides, we provide a command-line tool `graphdef2pydot` to support user
+generated GraphDef files and visualize (and compare) them:
 ```bash
-python tf_op_graph_vis/tf_graphdef_to_pydot.py --graph0 pics/first.pb.txt --graph1 pics/second.pb.txt --output output.png
+graphdef2pydot -g0 pics/first.pb.txt -g1 pics/second.pb.txt -o output.png
 ```
 ![GraphDef](pics/output.png)
