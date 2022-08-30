@@ -1,5 +1,6 @@
 import argparse
 import os
+import sys
 import tensorflow as tf
 
 from google.protobuf import text_format
@@ -8,12 +9,17 @@ from tensorflow.core.framework import graph_pb2
 from .utils import graphdef_to_image
 
 def main():
-  parser = argparse.ArgumentParser(description="Visualize GraphDef file.")
+  parser = argparse.ArgumentParser(description="Visualize GraphDef files.")
   parser.add_argument('-g0', '--graph0',
                       help="""The first GraphDef file path.""")
   parser.add_argument('-g1', '--graph1',
                       help="""The second GraphDef file path.""")
   parser.add_argument('-o', '--output', help="""PyDot output file path.""")
+
+  if len(sys.argv) == 1:
+    parser.print_help(sys.stderr)
+    sys.exit(1)
+
   args, _ = parser.parse_known_args()
 
   gd0_path = args.graph0 if args.graph0 else ""
