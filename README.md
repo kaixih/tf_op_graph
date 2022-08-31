@@ -7,9 +7,13 @@ layout optimization, remapping optimizations, etc. (For the full list of
 optimization passes, see
 [here](https://www.tensorflow.org/guide/graph_optimization)). The traditional
 way to display the op graph is via Tensorboard; however, Tensorboard only shows
-the op graph before the grappler passes. To better understand how the grappler
-changes the graph, this tool can be used to print out the op graphs before and
-after any specified optimization pass.
+the op graph before the grappler passes.
+
+To better understand how the grappler changes the graph, this tool can be used
+to print out the op graphs before and after any specified optimization pass.
+Users only need to provide the model function. Besides, we also provide a
+command line tool `graphdef2pydot` to plot and compare user-specified GraphDef
+files.
 
 ## Usage
 1. Install the dependencies.
@@ -29,8 +33,8 @@ tf_op_graph_vis.grappler_optimized_graph(
 ```
 The above example generates the op graphs before and after the `remapping`
 optimization. Note, at this point we only support three optimizers: `remapper`,
-`layout`, and `arithmetic`. There are many sample codes in [examples](examples).
-For example, this sample will generate the following graph.
+`layout`, and `arithmetic`. There are many sample codes in [examples](examples)
+and the following section shows how to use them.
 
 ## Plotted Graphs
 In the generated graphs, we conduct a simple graph identity check so that the
