@@ -1,4 +1,4 @@
-# TF Grappler Optimized Operation Graph
+# TF Operation Graph Visualization Tool
 
 A visualization tool to display TF-Grappler optimized op graph. Grappler is the
 default graph optimization system in the TensorFlow runtime. Many different
